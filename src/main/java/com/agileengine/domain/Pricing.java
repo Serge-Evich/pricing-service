@@ -14,7 +14,6 @@ public class Pricing {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @Temporal( TemporalType. )
     @Column( nullable = false, columnDefinition = "DATETIME")
     private LocalDateTime timestamp;
 
