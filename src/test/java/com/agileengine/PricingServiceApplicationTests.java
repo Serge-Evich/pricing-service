@@ -259,7 +259,14 @@ public class PricingServiceApplicationTests {
         pricing_3.setTimestamp(localDateTime_1.plusHours(3));
         pricing_3.setTimeZone(timeZone_3);
 
-        product.setPricingList(Arrays.asList(pricing_1, pricing_2, pricing_3));
+        Pricing pricing_4 = new Pricing();
+        pricing_4.setProduct(product);
+        pricing_4.setPrice(price_3);
+        pricing_4.setTimestamp(LocalDateTime.now());
+        pricing_4.setTimeZone(timeZone_3);
+
+
+        product.setPricingList(Arrays.asList(pricing_1, pricing_2, pricing_3, pricing_4));
 
         productEntityRepository.save(product);
 
