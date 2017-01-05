@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface PricingEntityRepository extends JpaRepository<Pricing, Long> {
     List<Pricing> findByProduct(Product product);
+    List<Pricing> findByProductIdOrderByTimestamp(Long productId);
 }

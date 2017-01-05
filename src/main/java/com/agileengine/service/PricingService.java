@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PricingService {
@@ -59,6 +62,52 @@ public class PricingService {
         pricing.setProduct(product);
         checkNotNull(pricing);
         pricingEntityRepository.save(pricing);
+    }
+
+    @Transactional
+    public void updateProduct( Long productId, Product product ) {
+        if ( product.getName() == null || product.getName().trim().isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+        if ( productEntityRepository.findProductByName(product.getName()).isPresent() ) {
+            throw new IllegalArgumentException();
+        }
+        Product productForUpdate = productEntityRepository.findOne(productId);
+        productForUpdate.setName(product.getName().trim());
+    }
+
+    @Transactional
+    public void updatePricing( Long productId, Long pricingId, Pricing pricing ) {
+        Pricing pricingForUpdate = pricingEntityRepository.findOne(pricingId);
+        if ( pricingForUpdate == null ) {
+            throw new IllegalArgumentException();
+        }
+        if (!Objects.equals(productId, pricingForUpdate.getProduct().getId()) ) {
+            throw new IllegalArgumentException();
+        }
+        String timeZone = pricing.getTimeZone();
+        LocalDateTime timestamp = pricing.getTimestamp();
+        BigDecimal price = pricing.getPrice();
+
+        if (timeZone != null) {
+            pricingForUpdate.setTimeZone(timeZone);
+        }
+
+        if ( timestamp != null ) {
+            pricingForUpdate.setTimestamp(timestamp);
+        }
+
+        if ( price != null ) {
+            pricingForUpdate.setPrice(price);
+        }
+    }
+    @Transactional
+    public List<Pricing> getPricingHistory( Long productId ) {
+        List<Pricing> pricingList = pricingEntityRepository.findByProductIdOrderByTimestamp(productId);
+        if ( pricingList == null ) {
+            throw new IllegalArgumentException();
+        }
+        return pricingList;
     }
 
     private void checkNotNull( Product product ) {

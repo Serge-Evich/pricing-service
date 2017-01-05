@@ -9,7 +9,6 @@ import com.agileengine.dto.ProductPriceDTO;
 import com.agileengine.util.Constants;
 import org.springframework.stereotype.Component;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -19,9 +18,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class ProductTransformer {
-
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
-
 
     public Product createProductFromDTO(ProductPriceDTO productPriceDTO) {
           return createProductFromDTO(productPriceDTO, null);
@@ -62,24 +58,16 @@ public class ProductTransformer {
     public List<PriceDTO> createPriceDTOListFromProduct( Product product ) {
         return product.getPricingList().stream()
                 .map( pricing -> {
-                    PriceDTO priceDTO = new PriceDTO();
-                    priceDTO.setId(pricing.getId());
-                    priceDTO.setPrice(pricing.getPrice());
-                    priceDTO.setTimestamp(
-                            String.format(
-                                    "%s%s",
-                                    pricing.getTimestamp().format(
-                                            DateTimeFormatter.ofPattern(
-                                                    Constants.DATETIME_FORMAT
-                                            )
-                                    ),
-                                    pricing.getTimeZone()
-                            )
-                    );
-                    priceDTO.setProduct(createProductDTOFromProduct(product));
-                    return priceDTO;
+                    return createPriceDTOFromPricing(pricing);
                 }).collect(Collectors.toList());
 
+    }
+
+    public Product createProductFromProductDTO( ProductDTO productDTO ) {
+        Product product = new Product();
+        product.setId(productDTO.getId());
+        product.setName(productDTO.getName());
+        return product;
     }
 
     public Pricing createPricingFromPriceDTO( PriceDTO priceDTO ) {
@@ -91,6 +79,32 @@ public class ProductTransformer {
         pricing.setTimeZone(getTimeZoneFromDate(priceDTO.getTimestamp()));
 
         return pricing;
+    }
+
+    public PriceDTO createPriceDTOFromPricing( Pricing pricing ) {
+        PriceDTO priceDTO = new PriceDTO();
+        priceDTO.setPrice(pricing.getPrice());
+        priceDTO.setId(pricing.getId());
+        priceDTO.setProduct( createProductDTOFromProduct(pricing.getProduct()) );
+        priceDTO.setTimestamp(
+                String.format(
+                        "%s%s",
+                        pricing.getTimestamp().format(
+                                DateTimeFormatter.ofPattern(
+                                        Constants.DATETIME_FORMAT
+                                )
+                        ),
+                        pricing.getTimeZone()
+                )
+        );
+        return priceDTO;
+    }
+
+    public List<PriceDTO> createPriceDTOListFromPricingList( List<Pricing> pricingList ) {
+        return pricingList.stream()
+                .map(pricing -> {
+                    return createPriceDTOFromPricing(pricing);})
+                .collect(Collectors.toList());
     }
 
     private String getTimeZoneFromDate( String dateString ) {

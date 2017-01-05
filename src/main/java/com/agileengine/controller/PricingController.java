@@ -1,6 +1,7 @@
 package com.agileengine.controller;
 
 import com.agileengine.dto.PriceDTO;
+import com.agileengine.dto.ProductDTO;
 import com.agileengine.dto.ProductPriceDTO;
 import com.agileengine.service.PricingService;
 import com.agileengine.transformer.ProductTransformer;
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -65,5 +68,45 @@ public class PricingController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @RequestMapping(path = "/{productId}", method = RequestMethod.PATCH, consumes = "application/json")
+    public ResponseEntity<?> updateProduct(@PathVariable Long productId, @RequestBody ProductDTO productDTO) {
+        try {
+            pricingService.updateProduct(productId, productTransformer.createProductFromProductDTO(productDTO));
+        } catch (IllegalArgumentException iae) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
+
+    @RequestMapping(path = "/{productId}/pricing/{pricingId}", method = RequestMethod.PATCH, consumes = "application/json")
+    public ResponseEntity<?> updatePricing(
+            @PathVariable
+            Long productId,
+            @PathVariable
+            Long pricingId,
+            @RequestBody
+            PriceDTO priceDTO
+    ) {
+        try {
+            pricingService.updatePricing(productId, pricingId, productTransformer.createPricingFromPriceDTO(priceDTO));
+        } catch ( IllegalArgumentException iae ) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch ( Exception e ) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+        return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+    }
+
+    @RequestMapping(path = "/{productId}/reports/pricehistory", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<?> getPriceHistory(@PathVariable Long productId) {
+        List<PriceDTO> priceDTOList = productTransformer.createPriceDTOListFromPricingList(
+                pricingService.getPricingHistory(productId)
+        );
+
+        return ResponseEntity.ok(priceDTOList);
     }
 }
