@@ -2,7 +2,6 @@
 -- Schema pricing
 -- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `pricing` DEFAULT CHARACTER SET utf8 ;
-USE `product` ;
 USE `pricing` ;
 
 -- -----------------------------------------------------
