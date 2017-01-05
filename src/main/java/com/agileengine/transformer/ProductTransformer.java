@@ -112,7 +112,7 @@ public class ProductTransformer {
     public LocalDateTime createLocalDateTimeFromTimestampDTO(TimestampDTO timestampDTO ) {
         LocalDateTime dateTime = LocalDateTime.parse(
                 timestampDTO.getDate(),
-                DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)
+                DateTimeFormatter.ofPattern(Constants.DATETIME_FORMAT)
         );
         return dateTime;
     }

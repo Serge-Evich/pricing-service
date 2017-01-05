@@ -34,8 +34,10 @@ public class PricingController {
             System.out.println(productPriceDTO);
             pricingService.saveNewProduct(productTransformer.createProductFromDTO(productPriceDTO));
         } catch (UserException ue) {
+            ue.printStackTrace();
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -46,8 +48,10 @@ public class PricingController {
         try {
             return ResponseEntity.ok(productTransformer.createProductDTOList(pricingService.getAllProducts()));
         } catch (UserException ue) {
+            ue.printStackTrace();
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -57,8 +61,10 @@ public class PricingController {
         try {
             return ResponseEntity.ok(productTransformer.createProductDTOFromProduct(pricingService.getProduct(id)));
         } catch (UserException ue) {
+            ue.printStackTrace();
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -72,8 +78,10 @@ public class PricingController {
                     )
             );
         } catch (UserException ue) {
+            ue.printStackTrace();
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -83,8 +91,10 @@ public class PricingController {
         try {
             pricingService.createNewPricing(productId, productTransformer.createPricingFromPriceDTO(priceDTO));
         } catch (UserException ue) {
+            ue.printStackTrace();
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -95,8 +105,10 @@ public class PricingController {
         try {
             pricingService.updateProduct(productId, productTransformer.createProductFromProductDTO(productDTO));
         } catch (UserException ue) {
+            ue.printStackTrace();
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
@@ -114,8 +126,10 @@ public class PricingController {
         try {
             pricingService.updatePricing(productId, pricingId, productTransformer.createPricingFromPriceDTO(priceDTO));
         } catch (UserException ue) {
+            ue.printStackTrace();
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
@@ -129,15 +143,17 @@ public class PricingController {
                     pricingService.getPricingHistory(productId)
             );
         } catch (UserException ue) {
+            ue.printStackTrace();
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         return ResponseEntity.ok(priceDTOList);
     }
 
-    @RequestMapping(path = "/reports/bytimestamp", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
+    @RequestMapping(path = "/reports/bytimestamp", method = RequestMethod.POST, produces = "application/json", consumes = "application/json")
     public ResponseEntity<?> getPricesByTimestamp(@RequestBody TimestampDTO timestampDTO) {
         List<PriceDTO> priceDTOList;
         try {
@@ -150,6 +166,7 @@ public class PricingController {
         } catch (UserException ue) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.ok(priceDTOList);
