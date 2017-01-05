@@ -10,7 +10,7 @@ public class ProductPriceDTO implements Serializable {
 
     private String productName;
     private BigDecimal price;
-    @JsonFormat(pattern= Constants.DATE_FORMAT)
+    @JsonFormat(pattern= Constants.DATETIME_Z_FORMAT)
     private String timestamp;
 
     public String getProductName() {

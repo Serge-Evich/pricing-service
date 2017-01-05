@@ -3,6 +3,7 @@ package com.agileengine.controller;
 import com.agileengine.dto.PriceDTO;
 import com.agileengine.dto.ProductDTO;
 import com.agileengine.dto.ProductPriceDTO;
+import com.agileengine.dto.TimestampDTO;
 import com.agileengine.service.PricingService;
 import com.agileengine.transformer.ProductTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,6 +108,16 @@ public class PricingController {
                 pricingService.getPricingHistory(productId)
         );
 
+        return ResponseEntity.ok(priceDTOList);
+    }
+
+    @RequestMapping(path = "/reports/bytimestamp", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
+    public ResponseEntity<?> getPricesByTimestamp(@RequestBody TimestampDTO timestampDTO) {
+        List<PriceDTO> priceDTOList = productTransformer.createPriceDTOListFromPricingList(
+                pricingService.getPricingByTimestamp(
+                        productTransformer.createLocalDateTimeFromTimestampDTO(timestampDTO)
+                )
+        );
         return ResponseEntity.ok(priceDTOList);
     }
 }

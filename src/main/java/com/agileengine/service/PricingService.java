@@ -110,6 +110,21 @@ public class PricingService {
         return pricingList;
     }
 
+    @Transactional
+    public List<Pricing> getPricingByTimestamp( LocalDateTime date ) {
+        List<Pricing> pricingList = pricingEntityRepository.findByTimestampBetween(
+                date,
+                LocalDateTime.of(
+                        date.getYear(),
+                        date.getMonth(),
+                        date.getDayOfMonth() + 1,
+                        0,
+                        0,
+                        0)
+        );
+        return pricingList;
+    }
+
     private void checkNotNull( Product product ) {
         if ( product == null ) {
             throw new IllegalArgumentException();

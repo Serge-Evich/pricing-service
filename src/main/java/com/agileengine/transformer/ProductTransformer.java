@@ -6,6 +6,7 @@ import com.agileengine.domain.Product;
 import com.agileengine.dto.PriceDTO;
 import com.agileengine.dto.ProductDTO;
 import com.agileengine.dto.ProductPriceDTO;
+import com.agileengine.dto.TimestampDTO;
 import com.agileengine.util.Constants;
 import org.springframework.stereotype.Component;
 
@@ -102,9 +103,17 @@ public class ProductTransformer {
 
     public List<PriceDTO> createPriceDTOListFromPricingList( List<Pricing> pricingList ) {
         return pricingList.stream()
-                .map(pricing -> {
-                    return createPriceDTOFromPricing(pricing);})
-                .collect(Collectors.toList());
+                .map( pricing -> {
+                    return createPriceDTOFromPricing(pricing);
+                }).collect(Collectors.toList());
+    }
+
+    public LocalDateTime createLocalDateTimeFromTimestampDTO(TimestampDTO timestampDTO ) {
+        LocalDateTime dateTime = LocalDateTime.parse(
+                timestampDTO.getDate(),
+                DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)
+        );
+        return dateTime;
     }
 
     private String getTimeZoneFromDate( String dateString ) {
