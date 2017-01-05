@@ -7,6 +7,7 @@ import com.agileengine.dto.PriceDTO;
 import com.agileengine.dto.ProductDTO;
 import com.agileengine.dto.ProductPriceDTO;
 import com.agileengine.dto.TimestampDTO;
+import com.agileengine.exception.UserException;
 import com.agileengine.util.Constants;
 import org.springframework.stereotype.Component;
 
@@ -119,7 +120,7 @@ public class ProductTransformer {
     private String getTimeZoneFromDate( String dateString ) {
         Matcher m = Constants.DATE_TIMEZONE_PATTERN.matcher(dateString);
         if ( !m.matches() ) {
-            throw new IllegalArgumentException();
+            throw new UserException(Constants.INVALID_DATE_FORMAT);
         }
         String timeZone = m.group(2);
         return timeZone;
@@ -128,7 +129,7 @@ public class ProductTransformer {
     private String getDateTimeFromDate( String dateString ) {
         Matcher m = Constants.DATE_TIMEZONE_PATTERN.matcher(dateString);
         if ( !m.matches() ) {
-            throw new IllegalArgumentException();
+            throw new UserException(Constants.INVALID_DATE_FORMAT);
         }
         String timeZone = m.group(1);
         return timeZone;

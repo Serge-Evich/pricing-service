@@ -4,6 +4,7 @@ import com.agileengine.dto.PriceDTO;
 import com.agileengine.dto.ProductDTO;
 import com.agileengine.dto.ProductPriceDTO;
 import com.agileengine.dto.TimestampDTO;
+import com.agileengine.exception.UserException;
 import com.agileengine.service.PricingService;
 import com.agileengine.transformer.ProductTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,19 +23,19 @@ public class PricingController {
     private ProductTransformer productTransformer;
 
     @Autowired
-    public PricingController( PricingService pricingService, ProductTransformer productTransformer ) {
+    public PricingController(PricingService pricingService, ProductTransformer productTransformer) {
         this.pricingService = pricingService;
         this.productTransformer = productTransformer;
     }
 
-    @RequestMapping( path = "/", method = RequestMethod.PUT, consumes = "application/json", produces = "application/json")
+    @RequestMapping(path = "/", method = RequestMethod.PUT, consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> createProduct(@RequestBody ProductPriceDTO productPriceDTO) {
         try {
             System.out.println(productPriceDTO);
             pricingService.saveNewProduct(productTransformer.createProductFromDTO(productPriceDTO));
-        } catch (IllegalArgumentException iae) {
-            return ResponseEntity.badRequest().build();
-        }  catch ( Exception e ) {
+        } catch (UserException ue) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -42,30 +43,48 @@ public class PricingController {
 
     @RequestMapping(path = "/", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<?> getAllProducts() {
-        return ResponseEntity.ok(productTransformer.createProductDTOList(pricingService.getAllProducts()));
+        try {
+            return ResponseEntity.ok(productTransformer.createProductDTOList(pricingService.getAllProducts()));
+        } catch (UserException ue) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @RequestMapping(path = "/{id}", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<?> getProduct(@PathVariable Long id) {
-        return ResponseEntity.ok(productTransformer.createProductDTOFromProduct(pricingService.getProduct(id)));
+        try {
+            return ResponseEntity.ok(productTransformer.createProductDTOFromProduct(pricingService.getProduct(id)));
+        } catch (UserException ue) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @RequestMapping(path = "/{id}/pricing", method = RequestMethod.GET, produces = "application/json")
-    public ResponseEntity<?> getPricing( @PathVariable Long id ) {
-        return ResponseEntity.ok(
-                productTransformer.createPriceDTOListFromProduct(
-                        pricingService.getProductWithPricing(id)
-                )
-        );
+    public ResponseEntity<?> getPricing(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(
+                    productTransformer.createPriceDTOListFromProduct(
+                            pricingService.getProductWithPricing(id)
+                    )
+            );
+        } catch (UserException ue) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @RequestMapping(path = "/{productId}/pricing", method = RequestMethod.PUT, consumes = "application/json")
     public ResponseEntity<?> createNewPricing(@PathVariable Long productId, @RequestBody PriceDTO priceDTO) {
         try {
             pricingService.createNewPricing(productId, productTransformer.createPricingFromPriceDTO(priceDTO));
-        } catch ( IllegalArgumentException iae ) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch ( Exception e ) {
+        } catch (UserException ue) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -75,8 +94,8 @@ public class PricingController {
     public ResponseEntity<?> updateProduct(@PathVariable Long productId, @RequestBody ProductDTO productDTO) {
         try {
             pricingService.updateProduct(productId, productTransformer.createProductFromProductDTO(productDTO));
-        } catch (IllegalArgumentException iae) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        } catch (UserException ue) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -94,9 +113,9 @@ public class PricingController {
     ) {
         try {
             pricingService.updatePricing(productId, pricingId, productTransformer.createPricingFromPriceDTO(priceDTO));
-        } catch ( IllegalArgumentException iae ) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch ( Exception e ) {
+        } catch (UserException ue) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         return ResponseEntity.status(HttpStatus.ACCEPTED).build();
@@ -104,20 +123,35 @@ public class PricingController {
 
     @RequestMapping(path = "/{productId}/reports/pricehistory", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<?> getPriceHistory(@PathVariable Long productId) {
-        List<PriceDTO> priceDTOList = productTransformer.createPriceDTOListFromPricingList(
-                pricingService.getPricingHistory(productId)
-        );
+        List<PriceDTO> priceDTOList;
+        try {
+            priceDTOList = productTransformer.createPriceDTOListFromPricingList(
+                    pricingService.getPricingHistory(productId)
+            );
+        } catch (UserException ue) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
 
         return ResponseEntity.ok(priceDTOList);
     }
 
     @RequestMapping(path = "/reports/bytimestamp", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
     public ResponseEntity<?> getPricesByTimestamp(@RequestBody TimestampDTO timestampDTO) {
-        List<PriceDTO> priceDTOList = productTransformer.createPriceDTOListFromPricingList(
-                pricingService.getPricingByTimestamp(
-                        productTransformer.createLocalDateTimeFromTimestampDTO(timestampDTO)
-                )
-        );
+        List<PriceDTO> priceDTOList;
+        try {
+
+            priceDTOList = productTransformer.createPriceDTOListFromPricingList(
+                    pricingService.getPricingByTimestamp(
+                            productTransformer.createLocalDateTimeFromTimestampDTO(timestampDTO)
+                    )
+            );
+        } catch (UserException ue) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ue.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
         return ResponseEntity.ok(priceDTOList);
     }
 }
